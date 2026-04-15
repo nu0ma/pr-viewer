@@ -8,7 +8,6 @@ Displays your created PRs, review requests, and items requiring action at a glan
 
 ## Prerequisites
 
-- [Bun](https://bun.sh/) installed
 - [GitHub CLI (`gh`)](https://cli.github.com/) installed and authenticated
 
 ```sh
@@ -18,13 +17,27 @@ gh auth status  # Check authentication status
 ## Installation
 
 ```sh
-bun install
+# bun
+bun add -g pr-watcher
+
+# npm
+npm install -g pr-watcher
+```
+
+Or run directly without installing:
+
+```sh
+# bun
+bunx pr-watcher
+
+# npm
+npx pr-watcher
 ```
 
 ## Usage
 
 ```sh
-bun run start
+pr-watcher
 ```
 
 ### Options
@@ -35,15 +48,14 @@ bun run start
 
 ```sh
 # Refresh every 5 minutes
-bun run start -- --interval 5
-bun run start -- -i 5
+pr-watcher --interval 5
+pr-watcher -i 5
 ```
 
-### Development Mode
-
-Automatically reloads on file changes.
+## Development
 
 ```sh
+bun install
 bun run dev
 ```
 
