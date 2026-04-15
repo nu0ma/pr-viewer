@@ -344,19 +344,26 @@ export function useGitHub(intervalMs: number, demo = false) {
     error: null,
   });
 
+  const usernameRef = useRef("");
+  const fetchingRef = useRef(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const refresh = useCallback(async () => {
     if (demo) return;
+    if (fetchingRef.current) return;
+    fetchingRef.current = true;
+
     setData((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
       const [username, myPRs, reviewRequests, notifications] =
         await Promise.all([
-          data.username || getUsername(),
+          usernameRef.current || getUsername(),
           fetchMyPRs(),
           fetchReviewRequests(),
           fetchNotifications(),
         ]);
+
+      usernameRef.current = username;
 
       const actionRequired = buildActionRequired(
         myPRs,
@@ -379,13 +386,30 @@ export function useGitHub(intervalMs: number, demo = false) {
         isLoading: false,
         error: err instanceof Error ? err.message : String(err),
       }));
+    } finally {
+      fetchingRef.current = false;
     }
-  }, [data.username, demo]);
+  }, [demo]);
 
+  const resetInterval = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (!demo) {
+      intervalRef.current = setInterval(refresh, intervalMs);
+    }
+  }, [refresh, intervalMs, demo]);
+
+  // Manual refresh resets the interval so countdown stays in sync
+  const manualRefresh = useCallback(async () => {
+    await refresh();
+    resetInterval();
+  }, [refresh, resetInterval]);
+
+  // Initial fetch
   useEffect(() => {
     if (!demo) refresh();
-  }, []);
+  }, [demo, refresh]);
 
+  // Auto-refresh interval
   useEffect(() => {
     if (demo) return;
     intervalRef.current = setInterval(refresh, intervalMs);
@@ -394,5 +418,5 @@ export function useGitHub(intervalMs: number, demo = false) {
     };
   }, [refresh, intervalMs, demo]);
 
-  return { data, refresh };
+  return { data, refresh: manualRefresh };
 }
