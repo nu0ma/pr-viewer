@@ -34,7 +34,7 @@ export function PRRow({
   showRepo = true,
 }: PRRowProps) {
   return (
-    <Box flexDirection="row" paddingLeft={2} height={1}>
+    <Box flexDirection="row" paddingLeft={2}>
       <Box width={repoWidth} flexShrink={0}>
         <Text dimColor wrap="truncate-end">
           {showRepo ? repo : ""}
@@ -45,7 +45,7 @@ export function PRRow({
       </Box>
       <Box flexGrow={1} flexShrink={1} marginRight={1}>
         <Transform transform={addHyperlink(url)}>
-          <Text wrap="truncate-end">{title}</Text>
+          <Text wrap="wrap">{title}</Text>
         </Transform>
       </Box>
       {author !== undefined && (
