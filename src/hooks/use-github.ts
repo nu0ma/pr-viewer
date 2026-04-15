@@ -1,3 +1,4 @@
+import { execFile } from "node:child_process";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type {
   PR,
@@ -9,17 +10,16 @@ import type {
 } from "../types.js";
 
 async function exec(cmd: string[]): Promise<string> {
-  const proc = Bun.spawn(cmd, {
-    stdout: "pipe",
-    stderr: "pipe",
+  const [command, ...args] = cmd;
+  return new Promise((resolve, reject) => {
+    execFile(command!, args, { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
+      if (error) {
+        reject(new Error(`Command failed: ${cmd.join(" ")}\n${stderr}`));
+        return;
+      }
+      resolve(stdout.trim());
+    });
   });
-  const text = await new Response(proc.stdout).text();
-  const exitCode = await proc.exited;
-  if (exitCode !== 0) {
-    const stderr = await new Response(proc.stderr).text();
-    throw new Error(`Command failed: ${cmd.join(" ")}\n${stderr}`);
-  }
-  return text.trim();
 }
 
 async function getUsername(): Promise<string> {
