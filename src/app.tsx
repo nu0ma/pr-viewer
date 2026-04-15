@@ -1,5 +1,6 @@
 import { Box, Text, useApp, useInput, useWindowSize } from "ink";
 import { useGitHub } from "./hooks/use-github.js";
+import { useTerminalFocus } from "./hooks/use-terminal-focus.js";
 import { Header } from "./components/header.js";
 import { ActionRequired } from "./components/action-required.js";
 import { MyPRs } from "./components/my-prs.js";
@@ -28,6 +29,16 @@ export function App({ intervalMinutes, demo = false }: AppProps) {
     },
     { isActive: process.stdin.isTTY === true }
   );
+
+  // Refetch when terminal window gains focus (if data is stale)
+  const STALE_MS = 30_000;
+  useTerminalFocus(() => {
+    if (demo) return;
+    if (data.lastUpdated && Date.now() - data.lastUpdated.getTime() < STALE_MS) {
+      return;
+    }
+    refresh();
+  });
 
   if (data.isLoading && !data.lastUpdated) {
     return (
