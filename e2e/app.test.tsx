@@ -21,6 +21,6 @@ test("renders demo PR titles", () => {
   const { lastFrame } = render(<App intervalMinutes={10} demo />);
   const frame = stripAnsi(lastFrame()!);
 
-  expect(frame).toContain("add dark mode support");
-  expect(frame).toContain("implement OAuth2 PKCE");
+  expect(frame).toContain("add dark mode");
+  expect(frame).toContain("OAuth2 PKCE flow");
 });

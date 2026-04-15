@@ -30,7 +30,7 @@ export function MyPRs({ prs }: MyPRsProps) {
   const sorted = sortByRepo(prs);
 
   return (
-    <Section icon="📤" title="MY PRS" count={prs.length} color="blue">
+    <Section icon="📤" title="MY PRS" count={prs.length} color="blue" showComments>
       {sorted.map((pr, i) => {
         const { label, color } = statusLabel(pr);
         const prevRepo = i > 0 ? sorted[i - 1]!.repo : null;
@@ -41,6 +41,7 @@ export function MyPRs({ prs }: MyPRsProps) {
             number={pr.number}
             title={pr.title}
             url={pr.url}
+            commentsCount={pr.commentsCount}
             author={pr.author}
             status={label}
             statusColor={color}
