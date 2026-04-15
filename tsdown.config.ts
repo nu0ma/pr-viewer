@@ -9,7 +9,4 @@ export default defineConfig({
   treeshake: true,
   clean: true,
   sourcemap: false,
-  deps: {
-    neverBundle: ["ink", "react", "react-devtools-core", "yoga-wasm-web"],
-  },
 });
