@@ -1,59 +1,59 @@
 # pr-watcher
 
-GitHub の PR 状況をターミナルでリアルタイムに監視する CLI ダッシュボード。
+A CLI dashboard for real-time monitoring of GitHub PR status in your terminal.
 
-自分が作成した PR、レビューリクエスト、対応が必要な項目を一覧で表示します。
+Displays your created PRs, review requests, and items requiring action at a glance.
 
-## 前提条件
+## Prerequisites
 
-- [Bun](https://bun.sh/) がインストールされていること
-- [GitHub CLI (`gh`)](https://cli.github.com/) がインストール・認証済みであること
+- [Bun](https://bun.sh/) installed
+- [GitHub CLI (`gh`)](https://cli.github.com/) installed and authenticated
 
 ```sh
-gh auth status  # 認証状態を確認
+gh auth status  # Check authentication status
 ```
 
-## インストール
+## Installation
 
 ```sh
 bun install
 ```
 
-## 使い方
+## Usage
 
 ```sh
 bun run start
 ```
 
-### オプション
+### Options
 
-| フラグ | 説明 | デフォルト |
+| Flag | Description | Default |
 |---|---|---|
-| `--interval`, `-i` | 自動更新の間隔（分） | `10` |
+| `--interval`, `-i` | Auto-refresh interval (minutes) | `10` |
 
 ```sh
-# 5分ごとに更新
+# Refresh every 5 minutes
 bun run start -- --interval 5
 bun run start -- -i 5
 ```
 
-### 開発モード
+### Development Mode
 
-ファイル変更時に自動リロードします。
+Automatically reloads on file changes.
 
 ```sh
 bun run dev
 ```
 
-## キーバインド
+## Key Bindings
 
-| キー | 操作 |
+| Key | Action |
 |---|---|
-| `r` | 手動で即時更新 |
-| `q` / `Ctrl+C` | 終了 |
+| `r` | Manually trigger an immediate refresh |
+| `q` / `Ctrl+C` | Quit |
 
-## 表示内容
+## Display
 
-- **My PRs** — 自分が作成したオープン PR（レビュー状態・コメント数付き）
-- **Review Requests** — 自分にレビューが依頼されている PR
-- **Action Required** — 未読通知がある PR（新しいコメント、レビュー依頼など）
+- **My PRs** — Your open PRs (with review status and comment count)
+- **Review Requests** — PRs where your review is requested
+- **Action Required** — PRs with unread notifications (new comments, review requests, etc.)
