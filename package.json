@@ -1,0 +1,24 @@
+{
+  "name": "pr-watcher",
+  "module": "src/cli.tsx",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run src/cli.tsx",
+    "dev": "bun run --watch src/cli.tsx"
+  },
+  "bin": {
+    "pr-watcher": "src/cli.tsx"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.2.14"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "ink": "^7.0.0",
+    "react": "^19.2.5"
+  }
+}
