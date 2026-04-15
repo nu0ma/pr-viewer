@@ -1,111 +1,56 @@
----
-description: Use Bun instead of Node.js, npm, pnpm, or vite.
-globs: "*.ts, *.tsx, *.html, *.css, *.js, *.jsx, package.json"
-alwaysApply: false
----
+# CLAUDE.md
 
-Default to using Bun instead of Node.js.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun test` instead of `jest` or `vitest`
-- Use `bun build <file.html|file.ts|file.css>` instead of `webpack` or `esbuild`
-- Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
-- Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
-- Bun automatically loads .env, so don't use dotenv.
+## What This Project Is
 
-## APIs
+pr-watcher (`@nu0ma/pr-watcher`) is a terminal dashboard for monitoring GitHub pull requests. It's a CLI tool built with React + Ink (terminal UI framework) that shows your open PRs, review requests, and action items. It requires `gh` (GitHub CLI) to be installed and authenticated.
 
-- `Bun.serve()` supports WebSockets, HTTPS, and routes. Don't use `express`.
-- `bun:sqlite` for SQLite. Don't use `better-sqlite3`.
-- `Bun.redis` for Redis. Don't use `ioredis`.
-- `Bun.sql` for Postgres. Don't use `pg` or `postgres.js`.
-- `WebSocket` is built-in. Don't use `ws`.
-- Prefer `Bun.file` over `node:fs`'s readFile/writeFile
-- Bun.$`ls` instead of execa.
+## Commands
 
-## Testing
-
-Use `bun test` to run tests.
-
-```ts#index.test.ts
-import { test, expect } from "bun:test";
-
-test("hello world", () => {
-  expect(1).toBe(1);
-});
+```bash
+bun install              # Install dependencies
+bun run dev              # Run in watch mode (auto-restart on file changes)
+bun run start            # Run once
+bun run build            # Bundle to dist/cli.js (ESM, node target, external packages)
+bun run typecheck        # TypeScript type checking (tsc --noEmit)
 ```
 
-## Frontend
+There are no tests yet. When adding tests, use `bun test` with `import { test, expect } from "bun:test"`.
 
-Use HTML imports with `Bun.serve()`. Don't use `vite`. HTML imports fully support React, CSS, Tailwind.
+## Tooling
 
-Server:
+Default to Bun instead of Node.js — use `bun` / `bun run` / `bun install` / `bun test` / `bun build`.
 
-```ts#index.ts
-import index from "./index.html"
+## Architecture
 
-Bun.serve({
-  routes: {
-    "/": index,
-    "/api/users/:id": {
-      GET: (req) => {
-        return new Response(JSON.stringify({ id: req.params.id }));
-      },
-    },
-  },
-  // optional websocket support
-  websocket: {
-    open: (ws) => {
-      ws.send("Hello, world!");
-    },
-    message: (ws, message) => {
-      ws.send(message);
-    },
-    close: (ws) => {
-      // handle close
-    }
-  },
-  development: {
-    hmr: true,
-    console: true,
-  }
-})
+```
+src/cli.tsx          → Entry point: parses CLI args (--interval, --demo), renders Ink app
+src/app.tsx          → Main React component: layout, keyboard input (r=refresh, q=quit), loading/error states
+src/types.ts         → TypeScript interfaces (PR, ReviewRequest, Notification, ActionItem, DashboardData)
+src/hooks/
+  use-github.ts      → Core data layer: fetches PRs/reviews/notifications via `gh` CLI commands
+src/components/
+  header.tsx         → Username, last update time, refresh interval
+  footer.tsx         → Key bindings, refresh countdown
+  my-prs.tsx         → User's open PRs with review status (Approved/Changes Requested/Pending/Draft)
+  review-requests.tsx→ PRs requesting user's review
+  action-required.tsx→ Combined view of PRs needing attention
+  pr-row.tsx         → Reusable PR row with terminal hyperlinks to GitHub
+  section.tsx        → Reusable section header with column layout
 ```
 
-HTML files can import .tsx, .jsx or .js files directly and Bun's bundler will transpile & bundle automatically. `<link>` tags can point to stylesheets and Bun's CSS bundler will bundle.
+**Data flow:** CLI args → `<App>` → `useGitHub` hook → `gh` CLI subprocess calls → React state → Ink terminal rendering
 
-```html#index.html
-<html>
-  <body>
-    <h1>Hello, world!</h1>
-    <script type="module" src="./frontend.tsx"></script>
-  </body>
-</html>
-```
+**Key design decisions:**
+- Uses GitHub CLI (`gh api`, `gh pr list`, `gh search prs`) via `Bun.spawn` rather than a GitHub SDK
+- Review decisions are fetched in batches of 5 to avoid rate limiting
+- Auto-refresh runs on a configurable interval (default 10 minutes)
+- `--demo` flag provides hardcoded data for testing without GitHub auth
 
-With the following `frontend.tsx`:
+## Publishing
 
-```tsx#frontend.tsx
-import React from "react";
-
-// import .css files directly and it works
-import './index.css';
-
-import { createRoot } from "react-dom/client";
-
-const root = createRoot(document.body);
-
-export default function Frontend() {
-  return <h1>Hello, world!</h1>;
-}
-
-root.render(<Frontend />);
-```
-
-Then, run index.ts
-
-```sh
-bun --hot ./index.ts
-```
-
-For more information, read the Bun API docs in `node_modules/bun-types/docs/**.md`.
+Published to npm as `@nu0ma/pr-watcher`. Release flow:
+1. Run "Create Release PR" workflow (manual dispatch with version type)
+2. Merge the Release-labeled PR
+3. "Release" workflow auto-publishes to npm with OIDC trusted publishing, creates git tag and GitHub Release
