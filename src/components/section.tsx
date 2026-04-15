@@ -27,11 +27,7 @@ export function Section({
         <Text dimColor> ({count})</Text>
       </Box>
       <Box flexDirection="row" paddingLeft={2} height={1}>
-        <Box width={24} flexShrink={0}>
-          <Text dimColor bold>
-            REPO
-          </Text>
-        </Box>
+        <Box width={24} flexShrink={0} />
         <Box width={8} flexShrink={0}>
           <Text dimColor bold>
             #
