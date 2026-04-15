@@ -1,6 +1,6 @@
 {
   "name": "@nu0ma/pr-watcher",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Terminal dashboard for monitoring GitHub pull requests",
   "type": "module",
   "bin": {
